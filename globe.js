@@ -9,9 +9,18 @@ const LOCATION = '40.6718891,-73.9728584'
 // Get a free Dark Sky API key at https://darksky.net/dev/docs
 const DARKSKY_API_KEY = process.env.DARKSKY_API_KEY
 
-const NIGHT_BRIGHTNESS = .12
+const NIGHT_BRIGHTNESS = .01
 
 const COLORS = {
+    10: {
+	hue: 49000,
+    },
+    20: {
+	hue: 48000,
+    },
+    30: {
+	hue: 45000,
+    },
     40: {
 	hue: 41566,
     },
@@ -34,10 +43,10 @@ const COLORS = {
 	hue: 2471,
     },
     90: {
-	hue: 57719,
+	hue: 65507,
     },
     95: {
-	hue: 65507,
+	hue: 57719,
     }
 }
 
@@ -111,7 +120,8 @@ function setColorForTemperature(temp, brightness) {
     })
 }
 
-const isAfterBedtime = () => new Date().getHours() >= 22
+const isBeforeWakeupTime = () => new Date().getHours() < 6
+const isAfterBedtime = () => new Date().getHours() >= 21
 
 function getBrightness(position) {
     if (position < 0) return 0
@@ -144,7 +154,8 @@ function updateForecast() {
 		const sunset = today.sunsetTime
 		let positionInDaylightWindow = (time - sunrise) / (sunset - sunrise)
 		console.log("position in daylight window: " + positionInDaylightWindow)
-		if (positionInDaylightWindow < 0 || isAfterBedtime()) {
+//		if (positionInDaylightWindow < 0
+		if (isBeforeWakeupTime() || isAfterBedtime()) {
 		    console.log("light should be off")
 		    setColor({on: false})
 		} else {
@@ -184,3 +195,7 @@ huejay.discover()
 	console.log(`An error occurred: ${error.message}`)
 	exitHorribly()
     });
+
+module.exports = {
+    setColor
+}
