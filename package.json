@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "huejay": "^1.8.5",
-    "node-fetch": "^2.5.0"
+    "huejay": "^1.9.0",
+    "node-fetch": "^2.6.0"
   }
 }
