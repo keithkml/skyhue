@@ -1,0 +1,8 @@
+{
+  "editor.detectIndentation": false,
+  "editor.tabSize": 2,
+  "prettier.tabWidth": 2,
+  "prettier.arrowParens": "avoid",
+  "prettier.printWidth": 100,
+  "prettier.semi": false
+}
