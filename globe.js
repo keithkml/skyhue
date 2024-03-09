@@ -103,7 +103,6 @@ function setColor(obj) {
             return client.sensors.getById(sensorId).then(sensor => {
               light.effect = "none"
               light.transitionTime = 0
-              Object.assign(light, obj)
               if ("lightlevel" in sensor.state.attributes.attributes) {
                 const level = sensor.state.attributes.attributes.lightlevel
                 console.log("light level for " + light.name + " is " + level)
@@ -112,7 +111,7 @@ function setColor(obj) {
                   b *= LIGHT_FACTORS[light.name]
                 }
                 b = Math.round(b)
-                console.log("desired brightness before clamp ", b)
+                console.log("desired brightness for " + light.name + " before clamp ", b)
                 if (b > 255) {
                   b = 255
                 }
@@ -120,24 +119,39 @@ function setColor(obj) {
                   b = 0
                 }
                 light.on = b > 0
-                light.brightness = b
+                if (light.on) {
+                  // avoid Philips Hue: 201, parameter, hue, is not modifiable. Device is set to off
+                  Object.assign(light, obj)
+                  light.brightness = b
+                } else {
+                  console.log("too dark for " + light.name + "; just turning off")
+                }
               } else {
                 console.log("sensor for " + light.name + " is missing lightlevel prop")
+                if ("on" in obj ? obj.on : light.on) {
+                  Object.assign(light, obj)
+                } else {
+                  console.log("no lightlevel for " + light.name + " and light is off; just turning off")
+                }
               }
               console.log("setting color after sensor", light)
               return client.lights.save(light)
             })
           } else {
-            console.log("setting color without sensor", obj)
-            light.effect = "none"
-            light.transitionTime = 0
-            Object.assign(light, obj)
+            if ("on" in obj ? obj.on : light.on) {
+              light.effect = "none"
+              light.transitionTime = 0
+              Object.assign(light, obj)
+              console.log("setting color without sensor", obj)
+            } else {
+              console.log("no sensor for " + light.name + " and light is off; just turning off")
+            }
             return client.lights.save(light)
           }
         })
       )
     )
-  )
+  ) || Promise.resolve(null)
 }
 
 function getColorForTemperature(temp) {
