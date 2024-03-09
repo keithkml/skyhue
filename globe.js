@@ -1,13 +1,22 @@
 let huejay = require("huejay")
 let fetch = require("node-fetch")
 
-// Generate username using instructions at:
-// https://developers.meethue.com/develop/get-started-2/#so-lets-get-started
+// see readme
 const USERNAME = process.env.HUE_USERNAME
 const LIGHT_NAME_PATTERN = "Globe.*"
-const LOCATION = "41.218217,-73.8720515"
-// Get a free Dark Sky API key at https://darksky.net/dev/docs
-const DARKSKY_API_KEY = process.env.DARKSKY_API_KEY
+const address = "41.218217,-73.8720515"
+
+const visualCrossingApiKey = process.env.VISUAL_CROSSING_API_KEY;
+
+if (!USERNAME) {
+  console.log("ERROR: $HUE_USERNAME is not set");
+  process.exit(1);
+}
+
+if (!visualCrossingApiKey) {
+  console.log("ERROR: $VISUAL_CROSSING_API_KEY is not set");
+  process.exit(1);
+}
 
 const NIGHT_BRIGHTNESS = 0.01
 
@@ -189,24 +198,26 @@ function getBrightness(position) {
 
 function updateForecast() {
   console.log("updating forecast...")
-  fetch("https://api.darksky.net/forecast/" + DARKSKY_API_KEY + "/" + LOCATION)
+  fetch(`https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${encodeURIComponent(
+    address
+  )}?unitGroup=us&include=current&key=${visualCrossingApiKey}&contentType=json`)
     .then(res => {
       if (!res.ok) {
         console.log("got non-200 response", res)
         setColor({ on: false })
         return
       }
-      res.json().then(weather => {
+      res.json().then(json => {
+        console.log("got response: ", json);
+
         // console.log(weather)
-        console.log("currently: " + weather.currently.summary)
-        console.log("daily: " + weather.daily.summary)
+        console.log("currently: " + json.currentConditions)
         //	    if (weather.precipProbability > 0 && weather.precipIntensity > 0) {
         //		setColorForRain()
         //	    } else {
-        const today = weather.daily.data[0]
-        sunrise = today.sunriseTime
-        sunset = today.sunsetTime
-        temperature = weather.currently.temperature
+        sunrise = json.currentConditions.sunriseEpoch
+        sunset = json.currentConditions.sunsetEpoch
+        temperature = json.currentConditions.temp
         updateGlobes()
       })
     })
