@@ -71,7 +71,7 @@ let SENSOR_UNIQUE_IDS_BY_LIGHT_NAME = {
   "Globe bedroom": "00:17:88:01:06:f5:f1:d5-02-0400",
 }
 let LIGHT_FACTORS = {
-  "Globe Keith office": 0.6,
+  "Globe Keith office": 0.7,
   "Globe bedroom": 1.1,
 }
 
@@ -107,10 +107,11 @@ function setColor(obj) {
               if ("lightlevel" in sensor.state.attributes.attributes) {
                 const level = sensor.state.attributes.attributes.lightlevel
                 console.log("light level for " + light.name + " is " + level)
-                let b = Math.round(convertLightLevelToBrightnessFraction(level) * 255)
+                let b = convertLightLevelToBrightnessFraction(level) * 255
                 if (light.name in LIGHT_FACTORS) {
                   b *= LIGHT_FACTORS[light.name]
                 }
+                b = Math.round(b)
                 console.log("desired brightness before clamp ", b)
                 if (b > 255) {
                   b = 255
