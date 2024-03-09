@@ -245,7 +245,7 @@ function startPolls() {
 }
 
 huejay
-  .discover()
+  .discover({strategy: 'upnp'})
   .then(bridges => {
     let bridge = bridges[0]
     console.log("Using bridge " + bridge.ip)
