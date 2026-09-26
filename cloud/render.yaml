@@ -1,0 +1,33 @@
+# Optional separate paid worker. The shared Nest deployment does not use this.
+services:
+  - type: worker
+    name: skyhue
+    runtime: node
+    region: oregon
+    plan: 0.5c-512mb
+    rootDir: cloud
+    buildCommand: npm ci && npm test
+    startCommand: npm start
+    numInstances: 1
+    maxShutdownDelaySeconds: 120
+    disk:
+      name: hue-tokens
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_VERSION
+        value: 22.22.3
+      - key: HUE_TOKEN_FILE
+        value: /var/data/hue.tokens.json
+      - key: DRY_RUN
+        value: "true"
+      - key: HUE_CLIENT_ID
+        sync: false
+      - key: HUE_CLIENT_SECRET
+        sync: false
+      - key: HUE_USERNAME
+        sync: false
+      - key: HUE_TOKENS_JSON
+        sync: false
+      - key: VISUAL_CROSSING_API_KEY
+        sync: false
